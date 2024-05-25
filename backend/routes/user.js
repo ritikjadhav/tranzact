@@ -1,28 +1,31 @@
-const express = require("express");
-const userRoute = express.Router();
-const User = require("../db");
-const z = require("zod");
+const { Router } = require("express");
+const userRoute = Router();
+const { User } = require("../db");
+const zod = require("zod");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../config");
 
 // validate via zod
-const ValidateUser = z.object({
-  username: z.string().email(),
-  firstName: z.string().min(3),
-  lastName: z.string().min(3),
-  password: z.string().min(8),
+const ValidateUser = zod.object({
+  username: zod.string().email(),
+  firstname: zod.string().min(3),
+  lastname: zod.string().min(3),
+  password: zod.string().min(8),
 });
 
-userRoute.post("user/signup", async (req, res) => {
+userRoute.post("/signup", async (req, res) => {
   try {
     ValidateUser.parse(req.body);
 
     // check if the user already exists
-    const existingUser = await User.findOne({ username });
-    if (!existingUser) {
-      const token = jwt.sign(req.body.username, JWT_SECRET);
+    const existingUser = await User.findOne({
+      username: req.body.username,
+    }).exec();
 
-      User.create(req.body);
+    if (!existingUser) {
+      await User.create(req.body);
+
+      const token = jwt.sign(req.body.username, JWT_SECRET);
 
       res.status(200).json({
         message: "User created successfully",
@@ -33,7 +36,13 @@ userRoute.post("user/signup", async (req, res) => {
         message: "Email already taken / Incorrect inputs",
       });
     }
-  } catch (error) {}
+  } catch (err) {
+    if (err instanceof zod.ZodError) {
+      res.json({
+        message: err.issues,
+      });
+    }
+  }
 });
 
 module.exports = userRoute;
