@@ -4,8 +4,8 @@ const { JWT_SECRET } = require("../config");
 const authMiddleware = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader.startsWith("Bearer ")) {
-    res.status(403).json({});
+  if (authHeader === undefined || !authHeader.startsWith("Bearer ")) {
+    return res.status(403).json({});
   }
 
   const token = authHeader.split(" ")[1];

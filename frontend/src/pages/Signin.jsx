@@ -8,7 +8,7 @@ const Signin = () => {
   return (
     <div className="bg-slate-300 h-screen flex justify-center">
       <div className="flex flex-col justify-center">
-        <div className="rounded-lg bg-white w-80 text-center h-max p-2 px-4">
+        <div className="rounded-lg bg-white shadow-xl w-80 text-center h-max p-6">
           <Heading label={"Sign In"} />
           <SubHeading label={"Enter your credentials to access your account"} />
           <InputBox label={"Email"} placeholder={"ritik@gmail.com"} />
